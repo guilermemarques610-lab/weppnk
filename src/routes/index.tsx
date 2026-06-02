@@ -6,6 +6,7 @@ import img_banner_namorados_CvCyTe41 from "@/assets/banners/banner-namorados-CvC
 import img_banner_kit_promocional_wBZfTgpx from "@/assets/banners/banner-kit-promocional-wBZfTgpx.webp";
 import img_banner_namorados_2_CkI0VjEO from "@/assets/banners/banner-namorados-2-CkI0VjEO.webp";
 import img_banner_kits_dos_sonhos_CXzpMOTN from "@/assets/banners/banner-kits-dos-sonhos-CXzpMOTN.webp";
+import img_destaque_mes from "@/assets/banners/destaque-mes.webp.asset.json";
 import img_kit_eternal_red from "@/assets/products/kit-eternal-red.webp";
 import img_kit_duo_sonhos_reais from "@/assets/products/kit-duo-sonhos-reais.png";
 import img_kit_essencia_de_rica_5_body_splash from "@/assets/products/kit-essencia-de-rica-5-body-splash.webp";
@@ -266,6 +267,11 @@ function Home() {
         {SECTIONS.map((sec) => (
           <div key={sec.title} className="scroll-mt-20">
             <h2 className="text-primary font-extrabold text-2xl lowercase text-center px-4 mt-8 mb-6 leading-tight tracking-tight">{sec.title}</h2>
+            {sec.title.includes("destaque do mês") && (
+              <div className="px-3 mb-6">
+                <img src={img_destaque_mes.url} alt="Kits dos Sonhos - Yahya Sadeeq e Tyrie Royale" loading="lazy" className="w-full h-auto rounded-xl" />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-x-3 gap-y-6 px-3">
               {sec.products.map((p, i) => <ProductCard key={i} p={p} />)}
             </div>
