@@ -112,9 +112,51 @@ function ProductCard({ p }: { p: Product }) {
   );
 }
 
+type CepInfo = { cep: string; city: string; uf: string; street?: string; bairro?: string };
+
 function Home() {
   const [bannerIdx, setBannerIdx] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [cepInfo, setCepInfo] = useState<CepInfo | null>(null);
+  const [cep, setCep] = useState("");
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepError, setCepError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("wepink_cep");
+      if (raw) setCepInfo(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, []);
+
+  const formatCep = (v: string) => v.replace(/\D/g, "").slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
+
+  const handleCepSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const digits = cep.replace(/\D/g, "");
+    if (digits.length !== 8) { setCepError("Digite um CEP válido."); return; }
+    setCepError(null);
+    setCepLoading(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const data = await res.json();
+      if (data?.erro) { setCepError("CEP não encontrado."); return; }
+      const info: CepInfo = {
+        cep: `${digits.slice(0,5)}-${digits.slice(5)}`,
+        city: data.localidade,
+        uf: data.uf,
+        street: data.logradouro,
+        bairro: data.bairro,
+      };
+      sessionStorage.setItem("wepink_cep", JSON.stringify(info));
+      setCepInfo(info);
+      setCep("");
+    } catch {
+      setCepError("Erro ao buscar CEP.");
+    } finally {
+      setCepLoading(false);
+    }
+  };
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -134,6 +176,9 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background mx-auto max-w-md md:shadow-xl">
+      <div className="bg-gradient-to-r from-[#FF00BB] to-[#FF4FB5] text-white text-[12px] font-semibold text-center px-3 py-2">
+        Cadastre-se e libere a promoção exclusiva de 80%
+      </div>
       <header className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center justify-between px-3 py-3">
           <button aria-label="Menu" className="p-2"><Menu className="w-6 h-6 text-foreground" /></button>
@@ -144,7 +189,20 @@ function Home() {
             <button aria-label="Carrinho" className="p-2"><ShoppingCart className="w-5 h-5 text-foreground" /></button>
           </div>
         </div>
+        {cepInfo && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-pink-50 border-t border-pink-100">
+            <div className="w-7 h-7 rounded-full bg-[#FF00BB] text-white flex items-center justify-center shrink-0">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0 text-[11px] leading-tight">
+              <p className="font-extrabold text-foreground truncate">Quiosque Wepink — Representante Aline</p>
+              <p className="text-foreground/70 truncate">Entrega em {cepInfo.city}/{cepInfo.uf} • CEP {cepInfo.cep}</p>
+            </div>
+            <span className="shrink-0 text-[10px] font-bold text-[#FF00BB] bg-white border border-pink-200 rounded-full px-2 py-1">3 a 4 horas</span>
+          </div>
+        )}
       </header>
+
 
       <main>
         <section className="relative">
@@ -176,12 +234,16 @@ function Home() {
             <MapPin className="w-7 h-7 text-primary flex-shrink-0" strokeWidth={2.5} />
             <p className="text-sm font-extrabold lowercase">digite seu cep e encontre um quiosque <span className="text-primary">wepink</span> mais perto de você</p>
           </div>
-          <form className="mt-3 space-y-3" onSubmit={(e)=>e.preventDefault()}>
+          <form className="mt-3 space-y-3" onSubmit={handleCepSubmit}>
             <label className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Seu CEP</label>
             <div className="flex gap-2 w-full">
-              <input inputMode="numeric" placeholder="00000-000" className="flex-1 min-w-0 border-2 border-border rounded-xl px-3 py-3 text-base font-semibold focus:outline-none focus:border-primary transition" />
-              <button type="submit" className="shrink-0 bg-primary text-primary-foreground font-bold rounded-xl px-4 py-3 text-sm active:scale-[0.97] transition">Buscar</button>
+              <input inputMode="numeric" placeholder="00000-000" value={cep} onChange={(e)=>{ setCep(formatCep(e.target.value)); setCepError(null); }} className="flex-1 min-w-0 border-2 border-border rounded-xl px-3 py-3 text-base font-semibold focus:outline-none focus:border-primary transition" />
+              <button type="submit" disabled={cepLoading} className="shrink-0 bg-primary text-primary-foreground font-bold rounded-xl px-4 py-3 text-sm active:scale-[0.97] transition disabled:opacity-60">{cepLoading ? "..." : "Buscar"}</button>
             </div>
+            {cepError && <p className="text-xs font-semibold text-red-600">{cepError}</p>}
+            {cepInfo && !cepError && (
+              <p className="text-xs font-semibold text-green-700">✓ Entrega em {cepInfo.city}/{cepInfo.uf} — CEP {cepInfo.cep}</p>
+            )}
             <span className="block text-xs text-foreground/40">Não sei meu CEP</span>
             <div className="mt-2 grid grid-cols-3 gap-2 pt-3 border-t border-border">
               <div className="flex flex-col items-center gap-1 text-center">
