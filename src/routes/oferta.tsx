@@ -24,6 +24,8 @@ function OfertaPage() {
   const [showCep, setShowCep] = useState(false);
   const [cpf, setCpf] = useState("");
   const [cep, setCep] = useState("");
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepError, setCepError] = useState<string | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const startX = useRef(0);
