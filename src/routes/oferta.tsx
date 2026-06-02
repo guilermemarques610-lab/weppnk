@@ -17,6 +17,7 @@ export const Route = createFileRoute("/oferta")({
 });
 
 function OfertaPage() {
+  const navigate = useNavigate();
   const [dragX, setDragX] = useState(0);
   const [unlocked, setUnlocked] = useState(false);
   const [showCpf, setShowCpf] = useState(false);
