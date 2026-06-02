@@ -301,23 +301,49 @@ function OfertaPage() {
             </div>
           </div>
           <div className="px-5 pb-5 pt-2 relative bg-background">
-            <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); setShowCep(false); navigate({ to: "/" }); }}>
+            <form className="space-y-3" onSubmit={async (e) => {
+              e.preventDefault();
+              const digits = cep.replace(/\D/g, "");
+              if (digits.length !== 8) { setCepError("Digite um CEP válido com 8 dígitos."); return; }
+              setCepError(null);
+              setCepLoading(true);
+              try {
+                const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+                const data = await res.json();
+                if (data?.erro) { setCepError("CEP não encontrado."); setCepLoading(false); return; }
+                sessionStorage.setItem("wepink_cep", JSON.stringify({
+                  cep: `${digits.slice(0,5)}-${digits.slice(5)}`,
+                  city: data.localidade,
+                  uf: data.uf,
+                  street: data.logradouro,
+                  bairro: data.bairro,
+                }));
+                setShowCep(false);
+                navigate({ to: "/" });
+              } catch {
+                setCepError("Erro ao buscar CEP. Tente novamente.");
+              } finally {
+                setCepLoading(false);
+              }
+            }}>
               <label className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Seu CEP</label>
               <div className="flex gap-2 w-full">
                 <input
                   inputMode="numeric"
                   placeholder="00000-000"
                   value={cep}
-                  onChange={(e) => setCep(formatCep(e.target.value))}
+                  onChange={(e) => { setCep(formatCep(e.target.value)); setCepError(null); }}
                   className="flex-1 min-w-0 border-2 border-border rounded-xl px-3 py-3 text-base font-semibold focus:outline-none focus:border-[#FF00BB] transition"
                 />
                 <button
                   type="submit"
+                  disabled={cepLoading}
                   className="shrink-0 bg-[#FF00BB] text-white font-bold rounded-xl px-4 py-3 text-sm active:scale-[0.97] transition disabled:opacity-60"
                 >
-                  Buscar
+                  {cepLoading ? "..." : "Buscar"}
                 </button>
               </div>
+              {cepError && <p className="text-xs font-semibold text-red-600">{cepError}</p>}
               <span className="block text-xs text-foreground/40 cursor-default">Não sei meu CEP</span>
               <div className="mt-4 grid grid-cols-3 gap-2 pt-3 border-t border-border">
                 <div className="flex flex-col items-center gap-1 text-center">
