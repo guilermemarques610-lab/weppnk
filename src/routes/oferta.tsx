@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { Sparkles, ChevronRight, CircleCheck, ShieldCheck, X, Gift, MapPin, Truck, Store } from "lucide-react";
 import presellImg from "@/assets/presell-namorados.webp";
@@ -17,6 +17,7 @@ export const Route = createFileRoute("/oferta")({
 });
 
 function OfertaPage() {
+  const navigate = useNavigate();
   const [dragX, setDragX] = useState(0);
   const [unlocked, setUnlocked] = useState(false);
   const [showCpf, setShowCpf] = useState(false);
@@ -298,7 +299,7 @@ function OfertaPage() {
             </div>
           </div>
           <div className="px-5 pb-5 pt-2 relative bg-background">
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); setShowCep(false); navigate({ to: "/" }); }}>
               <label className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Seu CEP</label>
               <div className="flex gap-2 w-full">
                 <input
