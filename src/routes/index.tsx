@@ -112,9 +112,51 @@ function ProductCard({ p }: { p: Product }) {
   );
 }
 
+type CepInfo = { cep: string; city: string; uf: string; street?: string; bairro?: string };
+
 function Home() {
   const [bannerIdx, setBannerIdx] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [cepInfo, setCepInfo] = useState<CepInfo | null>(null);
+  const [cep, setCep] = useState("");
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepError, setCepError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("wepink_cep");
+      if (raw) setCepInfo(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, []);
+
+  const formatCep = (v: string) => v.replace(/\D/g, "").slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
+
+  const handleCepSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const digits = cep.replace(/\D/g, "");
+    if (digits.length !== 8) { setCepError("Digite um CEP válido."); return; }
+    setCepError(null);
+    setCepLoading(true);
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const data = await res.json();
+      if (data?.erro) { setCepError("CEP não encontrado."); return; }
+      const info: CepInfo = {
+        cep: `${digits.slice(0,5)}-${digits.slice(5)}`,
+        city: data.localidade,
+        uf: data.uf,
+        street: data.logradouro,
+        bairro: data.bairro,
+      };
+      sessionStorage.setItem("wepink_cep", JSON.stringify(info));
+      setCepInfo(info);
+      setCep("");
+    } catch {
+      setCepError("Erro ao buscar CEP.");
+    } finally {
+      setCepLoading(false);
+    }
+  };
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -134,6 +176,9 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background mx-auto max-w-md md:shadow-xl">
+      <div className="bg-gradient-to-r from-[#FF00BB] to-[#FF4FB5] text-white text-[12px] font-semibold text-center px-3 py-2">
+        Cadastre-se e libere a promoção exclusiva de 80%
+      </div>
       <header className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center justify-between px-3 py-3">
           <button aria-label="Menu" className="p-2"><Menu className="w-6 h-6 text-foreground" /></button>
@@ -144,7 +189,20 @@ function Home() {
             <button aria-label="Carrinho" className="p-2"><ShoppingCart className="w-5 h-5 text-foreground" /></button>
           </div>
         </div>
+        {cepInfo && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-pink-50 border-t border-pink-100">
+            <div className="w-7 h-7 rounded-full bg-[#FF00BB] text-white flex items-center justify-center shrink-0">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0 text-[11px] leading-tight">
+              <p className="font-extrabold text-foreground truncate">Quiosque Wepink — Representante Aline</p>
+              <p className="text-foreground/70 truncate">Entrega em {cepInfo.city}/{cepInfo.uf} • CEP {cepInfo.cep}</p>
+            </div>
+            <span className="shrink-0 text-[10px] font-bold text-[#FF00BB] bg-white border border-pink-200 rounded-full px-2 py-1">3 a 4 horas</span>
+          </div>
+        )}
       </header>
+
 
       <main>
         <section className="relative">
