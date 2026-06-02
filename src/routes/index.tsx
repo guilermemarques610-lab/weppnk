@@ -13,6 +13,7 @@ import img_kit_vanilla_5_body_splash from "@/assets/products/kit-vanilla-5-body-
 import img_kit_trio_gemas_reais from "@/assets/products/kit-trio-gemas-reais.webp";
 import img_kit_cheiro_de_rica_deluxe from "@/assets/products/kit-cheiro-de-rica-deluxe.webp";
 import img_red_perfume from "@/assets/products/red-perfume.png";
+import wepinkLogo from "@/assets/wepink-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -182,7 +183,7 @@ function Home() {
       <header className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center justify-between px-3 py-3">
           <button aria-label="Menu" className="p-2"><Menu className="w-6 h-6 text-foreground" /></button>
-          <div className="text-2xl font-extrabold text-primary lowercase tracking-tight">wepink</div>
+          <img src={wepinkLogo.url} alt="wepink" className="h-7 w-auto" />
           <div className="flex items-center gap-1">
             <button aria-label="Buscar" className="p-2"><Search className="w-5 h-5 text-foreground" /></button>
             <button aria-label="Conta" className="p-2"><User className="w-5 h-5 text-foreground" /></button>
