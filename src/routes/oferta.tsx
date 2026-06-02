@@ -299,7 +299,7 @@ function OfertaPage() {
             </div>
           </div>
           <div className="px-5 pb-5 pt-2 relative bg-background">
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); setShowCep(false); navigate({ to: "/" }); }}>
               <label className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Seu CEP</label>
               <div className="flex gap-2 w-full">
                 <input
