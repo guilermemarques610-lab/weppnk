@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { Sparkles, ChevronRight, CircleCheck, ShieldCheck, X, Gift, MapPin, Truck, Store } from "lucide-react";
 import presellImg from "@/assets/presell-namorados.webp";
