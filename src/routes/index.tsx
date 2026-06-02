@@ -278,11 +278,8 @@ function Home() {
           </div>
         ))}
 
-        <footer className="mt-12 px-4 py-8 bg-foreground/[0.03] text-center text-xs text-foreground/60">
-          <p className="font-bold text-primary text-base lowercase mb-2">wepink</p>
-          <p>Quiosques WePink — Oferta Dia dos Namorados</p>
-          <p className="mt-2">© {new Date().getFullYear()} — Todos os direitos reservados</p>
-        </footer>
+        <SiteFooter />
+
       </main>
     </div>
   );
