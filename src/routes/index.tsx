@@ -267,6 +267,11 @@ function Home() {
         {SECTIONS.map((sec) => (
           <div key={sec.title} className="scroll-mt-20">
             <h2 className="text-primary font-extrabold text-2xl lowercase text-center px-4 mt-8 mb-6 leading-tight tracking-tight">{sec.title}</h2>
+            {sec.title.includes("destaque do mês") && (
+              <div className="px-3 mb-6">
+                <img src={img_destaque_mes.url} alt="Kits dos Sonhos - Yahya Sadeeq e Tyrie Royale" loading="lazy" className="w-full h-auto rounded-xl" />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-x-3 gap-y-6 px-3">
               {sec.products.map((p, i) => <ProductCard key={i} p={p} />)}
             </div>
