@@ -183,7 +183,7 @@ function Home() {
       <header className="sticky top-0 z-30 bg-background border-b border-border">
         <div className="flex items-center justify-between px-3 py-3">
           <button aria-label="Menu" className="p-2"><Menu className="w-6 h-6 text-foreground" /></button>
-          <img src={wepinkLogo.url} alt="wepink" className="h-12 w-auto" />
+          <img src={wepinkLogo.url} alt="wepink" className="h-16 w-auto" />
           <div className="flex items-center gap-1">
             <button aria-label="Buscar" className="p-2"><Search className="w-5 h-5 text-foreground" /></button>
             <button aria-label="Conta" className="p-2"><User className="w-5 h-5 text-foreground" /></button>
