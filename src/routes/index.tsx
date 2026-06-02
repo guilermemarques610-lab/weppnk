@@ -6,6 +6,13 @@ import img_banner_namorados_CvCyTe41 from "@/assets/banners/banner-namorados-CvC
 import img_banner_kit_promocional_wBZfTgpx from "@/assets/banners/banner-kit-promocional-wBZfTgpx.webp";
 import img_banner_namorados_2_CkI0VjEO from "@/assets/banners/banner-namorados-2-CkI0VjEO.webp";
 import img_banner_kits_dos_sonhos_CXzpMOTN from "@/assets/banners/banner-kits-dos-sonhos-CXzpMOTN.webp";
+import img_kit_eternal_red from "@/assets/products/kit-eternal-red.webp";
+import img_kit_duo_sonhos_reais from "@/assets/products/kit-duo-sonhos-reais.png";
+import img_kit_essencia_de_rica_5_body_splash from "@/assets/products/kit-essencia-de-rica-5-body-splash.webp";
+import img_kit_vanilla_5_body_splash from "@/assets/products/kit-vanilla-5-body-splash.webp";
+import img_kit_trio_gemas_reais from "@/assets/products/kit-trio-gemas-reais.webp";
+import img_kit_cheiro_de_rica_deluxe from "@/assets/products/kit-cheiro-de-rica-deluxe.webp";
+import img_red_perfume from "@/assets/products/red-perfume.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -15,6 +22,8 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+type Product = { title: string; desc: string; img: string; oldPrice: string; newPrice: string; installment: string; discount: string | null; badge: string | null };
+
 const BANNERS = [
   { src: img_banner_realeza_LSTGtm9g, alt: "Kit Duo Realeza" },
   { src: img_banner_namorados_CvCyTe41, alt: "Kits para namorados" },
@@ -23,7 +32,6 @@ const BANNERS = [
   { src: img_banner_kits_dos_sonhos_CXzpMOTN, alt: "Kits dos sonhos" },
 ];
 
-type Product = { title: string; desc: string; img: string; oldPrice: string; newPrice: string; installment: string; discount: string | null; badge: string | null };
 const SECTIONS: { title: string; products: Product[] }[] = [
   { title: "🎁 kits queridinhos", products: [
     { title: "KIT DUO REALEZA – Eternal Cherish + Red - Wepink", desc: "dupla icônica: Eternal Cherish dourado + Red marcante.", img: img_kit_eternal_red, oldPrice: "R$ 459,80", newPrice: "R$ 68,97", installment: "ou 6x R$ 11,50", discount: "85", badge: "exclusivo" },
@@ -70,7 +78,6 @@ const SECTIONS: { title: string; products: Product[] }[] = [
     { title: "Ruby Rhodolite Desodorante Colônia 100ml - Wepink", desc: "lapidado para impactar!", img: "https://wepink.vtexassets.com/arquivos/ids/163578-800-auto", oldPrice: "R$ 329,00", newPrice: "R$ 48,68", installment: "ou 6x R$ 8,11", discount: "80", badge: "best seller" },
   ]},
 ];
-
 
 function ProductCard({ p }: { p: Product }) {
   return (
