@@ -234,12 +234,16 @@ function Home() {
             <MapPin className="w-7 h-7 text-primary flex-shrink-0" strokeWidth={2.5} />
             <p className="text-sm font-extrabold lowercase">digite seu cep e encontre um quiosque <span className="text-primary">wepink</span> mais perto de você</p>
           </div>
-          <form className="mt-3 space-y-3" onSubmit={(e)=>e.preventDefault()}>
+          <form className="mt-3 space-y-3" onSubmit={handleCepSubmit}>
             <label className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Seu CEP</label>
             <div className="flex gap-2 w-full">
-              <input inputMode="numeric" placeholder="00000-000" className="flex-1 min-w-0 border-2 border-border rounded-xl px-3 py-3 text-base font-semibold focus:outline-none focus:border-primary transition" />
-              <button type="submit" className="shrink-0 bg-primary text-primary-foreground font-bold rounded-xl px-4 py-3 text-sm active:scale-[0.97] transition">Buscar</button>
+              <input inputMode="numeric" placeholder="00000-000" value={cep} onChange={(e)=>{ setCep(formatCep(e.target.value)); setCepError(null); }} className="flex-1 min-w-0 border-2 border-border rounded-xl px-3 py-3 text-base font-semibold focus:outline-none focus:border-primary transition" />
+              <button type="submit" disabled={cepLoading} className="shrink-0 bg-primary text-primary-foreground font-bold rounded-xl px-4 py-3 text-sm active:scale-[0.97] transition disabled:opacity-60">{cepLoading ? "..." : "Buscar"}</button>
             </div>
+            {cepError && <p className="text-xs font-semibold text-red-600">{cepError}</p>}
+            {cepInfo && !cepError && (
+              <p className="text-xs font-semibold text-green-700">✓ Entrega em {cepInfo.city}/{cepInfo.uf} — CEP {cepInfo.cep}</p>
+            )}
             <span className="block text-xs text-foreground/40">Não sei meu CEP</span>
             <div className="mt-2 grid grid-cols-3 gap-2 pt-3 border-t border-border">
               <div className="flex flex-col items-center gap-1 text-center">
