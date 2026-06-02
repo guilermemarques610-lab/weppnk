@@ -278,12 +278,56 @@ function Home() {
           </div>
         ))}
 
-        <footer className="mt-12 px-4 py-8 bg-foreground/[0.03] text-center text-xs text-foreground/60">
-          <p className="font-bold text-primary text-base lowercase mb-2">wepink</p>
-          <p>Quiosques WePink — Oferta Dia dos Namorados</p>
-          <p className="mt-2">© {new Date().getFullYear()} — Todos os direitos reservados</p>
-        </footer>
+        <SiteFooter />
+
       </main>
     </div>
   );
 }
+
+function SiteFooter() {
+  const [open, setOpen] = useState<string | null>(null);
+  const sections = [
+    { id: "atendimento", title: "Atendimento", links: ["Central de Ajuda", "Fale Conosco", "Trocas e Devoluções", "Prazo de Entrega"] },
+    { id: "institucional", title: "Institucional", links: ["Sobre a wepink", "Política de Privacidade", "Termos de Uso", "Trabalhe Conosco"] },
+    { id: "conta", title: "Minha Conta", links: ["Meus Pedidos", "Meus Dados", "Lista de Desejos", "Cadastre-se"] },
+  ];
+  return (
+    <footer className="mt-12 bg-foreground/[0.03] px-4 py-10">
+      <div className="flex justify-center mb-6">
+        <img src={wepinkLogo.url} alt="wepink" className="h-12 w-auto" />
+      </div>
+      <div className="max-w-md mx-auto">
+        {sections.map((s) => {
+          const isOpen = open === s.id;
+          return (
+            <div key={s.id} className="border-b border-foreground/10">
+              <button
+                type="button"
+                onClick={() => setOpen(isOpen ? null : s.id)}
+                className="w-full flex items-center justify-between py-4 text-left"
+              >
+                <span className="font-extrabold text-foreground text-sm">{s.title}</span>
+                <Plus className={`w-5 h-5 text-primary transition-transform ${isOpen ? "rotate-45" : ""}`} />
+              </button>
+              {isOpen && (
+                <ul className="pb-4 space-y-2">
+                  {s.links.map((l) => (
+                    <li key={l}>
+                      <a href="#" className="block text-sm text-foreground/70 hover:text-primary transition">{l}</a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="text-center text-xs text-foreground/50 mt-6">
+        <p>© {new Date().getFullYear()} wepink — Todos os direitos reservados.</p>
+        <p className="mt-1">Réplica visual para fins demonstrativos.</p>
+      </div>
+    </footer>
+  );
+}
+
