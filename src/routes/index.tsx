@@ -15,6 +15,7 @@ import img_kit_trio_gemas_reais from "@/assets/products/kit-trio-gemas-reais.web
 import img_kit_cheiro_de_rica_deluxe from "@/assets/products/kit-cheiro-de-rica-deluxe.webp";
 import img_red_perfume from "@/assets/products/red-perfume.png";
 import wepinkLogo from "@/assets/wepink-logo.png.asset.json";
+import { useCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -82,6 +83,14 @@ const SECTIONS: { title: string; products: Product[] }[] = [
 ];
 
 function ProductCard({ p }: { p: Product }) {
+  const { add } = useCart();
+  const addToCart = () => add({
+    id: p.title,
+    title: p.title,
+    img: p.img,
+    oldPrice: p.oldPrice,
+    newPrice: p.newPrice,
+  });
   return (
     <article className="flex flex-col">
       <div className="relative bg-white rounded-md overflow-hidden aspect-square flex items-center justify-center">
@@ -104,8 +113,8 @@ function ProductCard({ p }: { p: Product }) {
         {p.newPrice} <span className="text-[11px] font-normal text-foreground/70">{p.installment}</span>
       </p>
       <div className="mt-3 flex items-stretch gap-2">
-        <button className="flex-1 bg-primary text-primary-foreground font-bold text-sm rounded-md py-2.5 active:scale-[0.98] transition">Comprar</button>
-        <button aria-label="Adicionar ao carrinho" className="border-2 border-primary text-primary rounded-md px-2.5 flex items-center gap-0.5">
+        <button onClick={addToCart} className="flex-1 bg-primary text-primary-foreground font-bold text-sm rounded-md py-2.5 active:scale-[0.98] transition">Comprar</button>
+        <button onClick={addToCart} aria-label="Adicionar ao carrinho" className="border-2 border-primary text-primary rounded-md px-2.5 flex items-center gap-0.5">
           <Plus className="w-3.5 h-3.5" strokeWidth={3} />
           <Cart className="w-4 h-4" />
         </button>
@@ -117,6 +126,7 @@ function ProductCard({ p }: { p: Product }) {
 type CepInfo = { cep: string; city: string; uf: string; street?: string; bairro?: string };
 
 function Home() {
+  const { setOpen: setCartOpen, totalCount } = useCart();
   const [bannerIdx, setBannerIdx] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [cepInfo, setCepInfo] = useState<CepInfo | null>(null);
@@ -188,7 +198,12 @@ function Home() {
           <div className="flex items-center gap-1">
             <button aria-label="Buscar" className="p-2"><Search className="w-5 h-5 text-foreground" /></button>
             <button aria-label="Conta" className="p-2"><User className="w-5 h-5 text-foreground" /></button>
-            <button aria-label="Carrinho" className="p-2"><ShoppingCart className="w-5 h-5 text-foreground" /></button>
+            <button aria-label="Carrinho" onClick={() => setCartOpen(true)} className="p-2 relative">
+              <ShoppingCart className="w-5 h-5 text-foreground" />
+              {totalCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-[#FF00BB] text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">{totalCount}</span>
+              )}
+            </button>
           </div>
         </div>
         {cepInfo && (
