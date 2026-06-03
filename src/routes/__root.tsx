@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Wepink" },
+      { name: "description", content: "Promoção dias dos namorados 85% off" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Wepink" },
+      { property: "og:description", content: "Promoção dias dos namorados 85% off" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Wepink" },
+      { name: "twitter:description", content: "Promoção dias dos namorados 85% off" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8cf74954-9d27-47bf-b9d2-3c6b45d925cc/id-preview-5312831e--af080b53-90fa-43c6-b638-36d6504876fc.lovable.app-1780412925849.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8cf74954-9d27-47bf-b9d2-3c6b45d925cc/id-preview-5312831e--af080b53-90fa-43c6-b638-36d6504876fc.lovable.app-1780412925849.png" },
     ],
     links: [
       {
