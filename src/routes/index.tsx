@@ -247,36 +247,20 @@ function Home() {
               <p className="text-foreground/80 mt-1">Na compra de <span className="font-extrabold text-primary">qualquer produto</span>, você ganha <span className="font-extrabold text-primary">1 número da sorte</span> para concorrer a um <span className="font-extrabold text-foreground underline decoration-primary decoration-2 underline-offset-2">iPhone 17 Pro Max</span> ✨</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-4">
-            <MapPin className="w-7 h-7 text-primary flex-shrink-0" strokeWidth={2.5} />
-            <p className="text-sm font-extrabold lowercase">digite seu cep e encontre um quiosque <span className="text-primary">wepink</span> mais perto de você</p>
+          <div className="mt-4 grid grid-cols-3 gap-2 pt-3 border-t border-border">
+            <div className="flex flex-col items-center gap-1 text-center">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Truck className="w-4 h-4" /></div>
+              <span className="text-[10px] font-semibold text-foreground/70">Mesmo dia</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 text-center">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Store className="w-4 h-4" /></div>
+              <span className="text-[10px] font-semibold text-foreground/70">+200 quiosques</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 text-center">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Sparkles className="w-4 h-4" /></div>
+              <span className="text-[10px] font-semibold text-foreground/70">Frete Grátis*</span>
+            </div>
           </div>
-          <form className="mt-3 space-y-3" onSubmit={handleCepSubmit}>
-            <label className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Seu CEP</label>
-            <div className="flex gap-2 w-full">
-              <input inputMode="numeric" placeholder="00000-000" value={cep} onChange={(e)=>{ setCep(formatCep(e.target.value)); setCepError(null); }} className="flex-1 min-w-0 border-2 border-border rounded-xl px-3 py-3 text-base font-semibold focus:outline-none focus:border-primary transition" />
-              <button type="submit" disabled={cepLoading} className="shrink-0 bg-primary text-primary-foreground font-bold rounded-xl px-4 py-3 text-sm active:scale-[0.97] transition disabled:opacity-60">{cepLoading ? "..." : "Buscar"}</button>
-            </div>
-            {cepError && <p className="text-xs font-semibold text-red-600">{cepError}</p>}
-            {cepInfo && !cepError && (
-              <p className="text-xs font-semibold text-green-700">✓ Entrega em {cepInfo.city}/{cepInfo.uf} — CEP {cepInfo.cep}</p>
-            )}
-            <span className="block text-xs text-foreground/40">Não sei meu CEP</span>
-            <div className="mt-2 grid grid-cols-3 gap-2 pt-3 border-t border-border">
-              <div className="flex flex-col items-center gap-1 text-center">
-                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Truck className="w-4 h-4" /></div>
-                <span className="text-[10px] font-semibold text-foreground/70">Mesmo dia</span>
-              </div>
-              <div className="flex flex-col items-center gap-1 text-center">
-                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Store className="w-4 h-4" /></div>
-                <span className="text-[10px] font-semibold text-foreground/70">+200 quiosques</span>
-              </div>
-              <div className="flex flex-col items-center gap-1 text-center">
-                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Sparkles className="w-4 h-4" /></div>
-                <span className="text-[10px] font-semibold text-foreground/70">Frete Grátis*</span>
-              </div>
-            </div>
-          </form>
         </section>
 
         {SECTIONS.map((sec) => (
