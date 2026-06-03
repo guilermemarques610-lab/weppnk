@@ -114,7 +114,7 @@ export function CartDrawer() {
             )}
             <p className="text-[11px] text-foreground/50 text-center">Frete e cupons calculados na próxima etapa.</p>
             <button
-              onClick={() => { setOpen(false); navigate({ to: "/oferta" }); }}
+              onClick={() => { setOpen(false); navigate({ to: "/checkout" }); }}
               className="w-full bg-green-600 hover:bg-green-700 text-white font-bold rounded-full py-3.5 text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition"
             >
               <Lock className="w-4 h-4" /> FINALIZAR COMPRA SEGURA
