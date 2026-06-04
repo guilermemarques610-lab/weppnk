@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as OfertaRouteImport } from './routes/oferta'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicFreepayWebhookRouteImport } from './routes/api/public/freepay-webhook'
 
 const OfertaRoute = OfertaRouteImport.update({
   id: '/oferta',
@@ -28,35 +29,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFreepayWebhookRoute = ApiPublicFreepayWebhookRouteImport.update({
+  id: '/api/public/freepay-webhook',
+  path: '/api/public/freepay-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/oferta': typeof OfertaRoute
+  '/api/public/freepay-webhook': typeof ApiPublicFreepayWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/oferta': typeof OfertaRoute
+  '/api/public/freepay-webhook': typeof ApiPublicFreepayWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/oferta': typeof OfertaRoute
+  '/api/public/freepay-webhook': typeof ApiPublicFreepayWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/checkout' | '/oferta'
+  fullPaths: '/' | '/checkout' | '/oferta' | '/api/public/freepay-webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkout' | '/oferta'
-  id: '__root__' | '/' | '/checkout' | '/oferta'
+  to: '/' | '/checkout' | '/oferta' | '/api/public/freepay-webhook'
+  id: '__root__' | '/' | '/checkout' | '/oferta' | '/api/public/freepay-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckoutRoute: typeof CheckoutRoute
   OfertaRoute: typeof OfertaRoute
+  ApiPublicFreepayWebhookRoute: typeof ApiPublicFreepayWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/freepay-webhook': {
+      id: '/api/public/freepay-webhook'
+      path: '/api/public/freepay-webhook'
+      fullPath: '/api/public/freepay-webhook'
+      preLoaderRoute: typeof ApiPublicFreepayWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckoutRoute: CheckoutRoute,
   OfertaRoute: OfertaRoute,
+  ApiPublicFreepayWebhookRoute: ApiPublicFreepayWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
