@@ -71,6 +71,68 @@ function CheckoutPage() {
   const total = subtotalNew + shippingCost;
   const savings = Math.max(0, subtotalOld - subtotalNew);
 
+  // FreePay Pix state
+  const createPix = useServerFn(createFreePayPix);
+  const checkTx = useServerFn(getFreePayTransaction);
+  const [pix, setPix] = useState<{ id: string; qr: string; url: string; status: string } | null>(null);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Polling do status
+  useEffect(() => {
+    if (!pix || pix.status === "PAID") return;
+    const interval = setInterval(async () => {
+      try {
+        const r = await checkTx({ data: { id: pix.id } });
+        if (r.ok && r.status !== pix.status) {
+          setPix((p) => (p ? { ...p, status: r.status } : p));
+          if (r.status === "PAID") setStep(4);
+        }
+      } catch {}
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [pix, checkTx]);
+
+  const handleFinalize = async () => {
+    if (payment !== "pix") { setStep(4); return; }
+    setPaying(true); setPayError(null);
+    try {
+      const amountCents = Math.round(total * 100);
+      const items = items_unitItems(useCartItemsFor(items), total, subtotalNew);
+      const r = await createPix({
+        data: {
+          amount: amountCents,
+          customer: {
+            name: form.name, email: form.email,
+            phone: form.phone, document: form.cpf,
+          },
+          items: cartItemsToFreePay(itemsForFreePay()),
+          shipping: {
+            fee: Math.round(shippingCost * 100),
+            address: {
+              street: form.address, street_number: form.number,
+              complement: form.complement || undefined,
+              zip_code: form.cep, neighborhood: form.district || "Centro",
+              city: form.city, state: form.state, country: "BR",
+            },
+          },
+        },
+      });
+      if (!r.ok) { setPayError(r.error); return; }
+      setPix({ id: r.id, qr: r.qr_code, url: r.qr_url, status: r.status });
+    } catch (e: any) {
+      setPayError(e?.message ?? "Erro ao gerar Pix");
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  // helpers definidos abaixo via closures, declarados aqui para escopo
+  function itemsForFreePay() { return items; }
+  function useCartItemsFor<T>(x: T) { return x; }
+  function items_unitItems<T>(x: T, _t: number, _s: number) { return x; }
+
   const back = () => {
     if (step === 1) navigate({ to: "/" });
     else setStep((s) => (s - 1) as Step);
