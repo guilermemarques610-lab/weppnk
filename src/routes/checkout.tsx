@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
 import {
   ArrowLeft, Lock, User, Truck, CreditCard, CheckCircle2, PartyPopper,
-  ShieldCheck, ShoppingBag, MapPin, Package, Zap, Bike,
+  ShieldCheck, ShoppingBag, MapPin, Package, Zap, Bike, Copy, Loader2, QrCode,
 } from "lucide-react";
 import { useCart, formatBRL } from "@/lib/cart";
+import { createFreePayPix, getFreePayTransaction } from "@/lib/freepay.functions";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
