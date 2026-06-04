@@ -98,16 +98,27 @@ function CheckoutPage() {
     if (payment !== "pix") { setStep(4); return; }
     setPaying(true); setPayError(null);
     try {
-      const amountCents = Math.round(total * 100);
-      const items = items_unitItems(useCartItemsFor(items), total, subtotalNew);
+      const parsePriceLocal = (s: string) => {
+        const n = parseFloat(s.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", "."));
+        return isNaN(n) ? 0 : n;
+      };
+      const fpItems = items.length > 0
+        ? items.map((it) => ({
+            title: it.title.slice(0, 100),
+            unit_price: Math.max(1, Math.round(parsePriceLocal(it.newPrice) * 100)),
+            quantity: it.qty,
+            tangible: true,
+          }))
+        : [{ title: "Pedido WePink", unit_price: Math.round(total * 100), quantity: 1, tangible: true }];
+
       const r = await createPix({
         data: {
-          amount: amountCents,
+          amount: Math.round(total * 100),
           customer: {
             name: form.name, email: form.email,
             phone: form.phone, document: form.cpf,
           },
-          items: cartItemsToFreePay(itemsForFreePay()),
+          items: fpItems,
           shipping: {
             fee: Math.round(shippingCost * 100),
             address: {
@@ -128,10 +139,10 @@ function CheckoutPage() {
     }
   };
 
-  // helpers definidos abaixo via closures, declarados aqui para escopo
-  function itemsForFreePay() { return items; }
-  function useCartItemsFor<T>(x: T) { return x; }
-  function items_unitItems<T>(x: T, _t: number, _s: number) { return x; }
+  const copyPix = async () => {
+    if (!pix?.qr) return;
+    try { await navigator.clipboard.writeText(pix.qr); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {}
+  };
 
   const back = () => {
     if (step === 1) navigate({ to: "/" });
