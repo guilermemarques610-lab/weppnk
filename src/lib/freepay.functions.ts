@@ -106,9 +106,37 @@ export const createFreePayPix = createServerFn({ method: "POST" })
     const tx = Array.isArray(json?.data) ? json.data[0] : json?.data ?? json;
     const pix = Array.isArray(tx?.pix) ? tx.pix[0] : tx?.pix;
 
+    const orderId = String(tx?.id ?? "");
+
+    // Notifica UTMify como waiting_payment (best-effort, não bloqueia resposta)
+    if (orderId) {
+      let ip: string | null = null;
+      try { ip = getRequestIP({ xForwardedFor: true }) ?? null; } catch {}
+      sendUtmifyOrder({
+        orderId,
+        status: "waiting_payment",
+        createdAt: new Date(),
+        amountInCents: data.amount,
+        customer: {
+          name: data.customer.name,
+          email: data.customer.email,
+          phone: onlyDigits(data.customer.phone),
+          document: cpf,
+          ip,
+        },
+        products: data.items.map((it, idx) => ({
+          id: `${idx + 1}`,
+          name: it.title,
+          quantity: it.quantity,
+          priceInCents: it.unit_price,
+        })),
+        tracking: data.tracking ?? null,
+      }).catch((e) => console.error("[utmify waiting_payment]", e));
+    }
+
     return {
       ok: true as const,
-      id: tx?.id as string,
+      id: orderId,
       status: tx?.status as string,
       qr_code: (pix?.qr_code as string) ?? "",
       qr_url: (pix?.url as string) ?? "",
