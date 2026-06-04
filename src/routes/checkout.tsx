@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
 import {
   ArrowLeft, Lock, User, Truck, CreditCard, CheckCircle2, PartyPopper,
-  ShieldCheck, ShoppingBag, MapPin, Package, Zap, Bike,
+  ShieldCheck, ShoppingBag, MapPin, Package, Zap, Bike, Copy, Loader2, QrCode,
 } from "lucide-react";
 import { useCart, formatBRL } from "@/lib/cart";
+import { createFreePayPix, getFreePayTransaction } from "@/lib/freepay.functions";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -68,6 +70,79 @@ function CheckoutPage() {
   const shippingCost = shipping === "correios" ? 0 : shipping === "full" ? 12.9 : 19.9;
   const total = subtotalNew + shippingCost;
   const savings = Math.max(0, subtotalOld - subtotalNew);
+
+  // FreePay Pix state
+  const createPix = useServerFn(createFreePayPix);
+  const checkTx = useServerFn(getFreePayTransaction);
+  const [pix, setPix] = useState<{ id: string; qr: string; url: string; status: string } | null>(null);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Polling do status
+  useEffect(() => {
+    if (!pix || pix.status === "PAID") return;
+    const interval = setInterval(async () => {
+      try {
+        const r = await checkTx({ data: { id: pix.id } });
+        if (r.ok && r.status !== pix.status) {
+          setPix((p) => (p ? { ...p, status: r.status } : p));
+          if (r.status === "PAID") setStep(4);
+        }
+      } catch {}
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [pix, checkTx]);
+
+  const handleFinalize = async () => {
+    if (payment !== "pix") { setStep(4); return; }
+    setPaying(true); setPayError(null);
+    try {
+      const parsePriceLocal = (s: string) => {
+        const n = parseFloat(s.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", "."));
+        return isNaN(n) ? 0 : n;
+      };
+      const fpItems = items.length > 0
+        ? items.map((it) => ({
+            title: it.title.slice(0, 100),
+            unit_price: Math.max(1, Math.round(parsePriceLocal(it.newPrice) * 100)),
+            quantity: it.qty,
+            tangible: true,
+          }))
+        : [{ title: "Pedido WePink", unit_price: Math.round(total * 100), quantity: 1, tangible: true }];
+
+      const r = await createPix({
+        data: {
+          amount: Math.round(total * 100),
+          customer: {
+            name: form.name, email: form.email,
+            phone: form.phone, document: form.cpf,
+          },
+          items: fpItems,
+          shipping: {
+            fee: Math.round(shippingCost * 100),
+            address: {
+              street: form.address, street_number: form.number,
+              complement: form.complement || undefined,
+              zip_code: form.cep, neighborhood: form.district || "Centro",
+              city: form.city, state: form.state, country: "BR",
+            },
+          },
+        },
+      });
+      if (!r.ok) { setPayError(r.error); return; }
+      setPix({ id: r.id, qr: r.qr_code, url: r.qr_url, status: r.status });
+    } catch (e: any) {
+      setPayError(e?.message ?? "Erro ao gerar Pix");
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const copyPix = async () => {
+    if (!pix?.qr) return;
+    try { await navigator.clipboard.writeText(pix.qr); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {}
+  };
 
   const back = () => {
     if (step === 1) navigate({ to: "/" });
@@ -323,13 +398,51 @@ function CheckoutPage() {
               </div>
             </section>
 
-            <button onClick={() => setStep(4)}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold rounded-full py-3.5 text-sm transition active:scale-[0.99] flex items-center justify-center gap-2 shadow-md">
-              <Lock className="w-4 h-4" /> FINALIZAR COMPRA SEGURA
-            </button>
-            <p className="text-center text-[11px] text-foreground/50 flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-green-600" /> Pagamento 100% seguro
-            </p>
+            {pix ? (
+              <section className="bg-white rounded-2xl shadow-sm border border-pink-100 p-5 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <QrCode className="w-5 h-5 text-[#FF00BB]" />
+                  <h3 className="font-extrabold text-foreground">Pague com Pix</h3>
+                </div>
+                <p className="text-[12px] text-foreground/60 mb-3">Escaneie o QR Code no app do seu banco</p>
+                {pix.url ? (
+                  <img src={pix.url} alt="QR Code Pix" className="w-56 h-56 mx-auto rounded-lg border border-pink-100" />
+                ) : (
+                  <img
+                    alt="QR Code Pix"
+                    className="w-56 h-56 mx-auto rounded-lg border border-pink-100"
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pix.qr)}`}
+                  />
+                )}
+                <div className="mt-4 text-left">
+                  <p className="text-[11px] font-bold text-foreground/70 mb-1">Pix copia e cola</p>
+                  <div className="flex gap-2">
+                    <input readOnly value={pix.qr} className="flex-1 h-10 px-2 rounded-lg border border-pink-200 text-[11px] bg-pink-50/40" />
+                    <button onClick={copyPix} className="px-3 h-10 rounded-lg bg-[#FF00BB] text-white text-xs font-bold flex items-center gap-1">
+                      <Copy className="w-3.5 h-3.5" /> {copied ? "Copiado" : "Copiar"}
+                    </button>
+                  </div>
+                </div>
+                <p className="mt-4 text-[12px] text-foreground/70 flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-[#FF00BB]" />
+                  Aguardando confirmação do pagamento...
+                </p>
+              </section>
+            ) : (
+              <>
+                {payError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">{payError}</div>
+                )}
+                <button onClick={handleFinalize} disabled={paying}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white font-bold rounded-full py-3.5 text-sm transition active:scale-[0.99] flex items-center justify-center gap-2 shadow-md">
+                  {paying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
+                  {paying ? "GERANDO PIX..." : "FINALIZAR COMPRA SEGURA"}
+                </button>
+                <p className="text-center text-[11px] text-foreground/50 flex items-center justify-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-green-600" /> Pagamento 100% seguro
+                </p>
+              </>
+            )}
           </>
         )}
 
@@ -339,14 +452,9 @@ function CheckoutPage() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
               <CheckCircle2 className="w-9 h-9 text-green-600" />
             </div>
-            <h2 className="font-extrabold text-xl text-foreground">Pedido confirmado!</h2>
+            <h2 className="font-extrabold text-xl text-foreground">Pagamento confirmado!</h2>
             <p className="text-sm text-foreground/70 mt-1">
               Enviamos os detalhes para <strong>{form.email}</strong>.
-            </p>
-            <p className="text-[13px] text-foreground/60 mt-3">
-              {payment === "pix"
-                ? "Realize o pagamento via Pix para que seu pedido seja processado."
-                : "Seu pagamento está sendo processado."}
             </p>
             <button onClick={() => navigate({ to: "/" })} className="mt-5 w-full bg-[#FF00BB] text-white font-bold rounded-full py-3 text-sm">
               Voltar para a loja
