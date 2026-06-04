@@ -65,6 +65,25 @@ function CheckoutPage() {
     if (k === "cardNumber") v = maskCard(v);
     if (k === "cardExp") v = maskExp(v);
     setForm((f) => ({ ...f, [k]: v }));
+    if (k === "cep") {
+      const digits = v.replace(/\D/g, "");
+      if (digits.length === 8) {
+        fetch(`https://viacep.com.br/ws/${digits}/json/`)
+          .then((r) => r.json())
+          .then((d) => {
+            if (d && !d.erro) {
+              setForm((f) => ({
+                ...f,
+                address: d.logradouro || f.address,
+                district: d.bairro || f.district,
+                city: d.localidade || f.city,
+                state: d.uf || f.state,
+              }));
+            }
+          })
+          .catch(() => {});
+      }
+    }
   };
 
   const shippingCost = shipping === "correios" ? 0 : shipping === "full" ? 12.9 : 19.9;
