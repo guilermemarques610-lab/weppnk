@@ -147,6 +147,24 @@ function CheckoutPage() {
               city: form.city, state: form.state, country: "BR",
             },
           },
+          tracking: (() => {
+            try {
+              const sp = new URLSearchParams(window.location.search);
+              const get = (k: string) => sp.get(k) || sessionStorage.getItem(k) || null;
+              const t = {
+                src: get("src"),
+                sck: get("sck"),
+                utm_source: get("utm_source"),
+                utm_campaign: get("utm_campaign"),
+                utm_medium: get("utm_medium"),
+                utm_content: get("utm_content"),
+                utm_term: get("utm_term"),
+              };
+              // persiste para próximas etapas
+              Object.entries(t).forEach(([k, v]) => { if (v) sessionStorage.setItem(k, v); });
+              return t;
+            } catch { return undefined; }
+          })(),
         },
       });
       if (!r.ok) { setPayError(r.error); return; }
