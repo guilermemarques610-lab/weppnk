@@ -61,7 +61,7 @@ export const createFreePayPix = createServerFn({ method: "POST" })
       },
       items: data.items,
       pix: { expires_in_days: 1 },
-      metadata: JSON.stringify({ source: "quiosquewepink" }),
+      metadata: { source: "quiosquewepink" },
     };
 
     if (data.shipping) body.shipping = data.shipping;
