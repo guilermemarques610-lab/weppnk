@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { getRequestIP } from "@tanstack/react-start/server";
+import { sendUtmifyOrder } from "./utmify.server";
 
 const API_URL = "https://api.freepaybrasil.com";
 
@@ -9,6 +11,18 @@ const itemSchema = z.object({
   quantity: z.number().int().positive(),
   tangible: z.boolean(),
 });
+
+const trackingSchema = z
+  .object({
+    src: z.string().max(255).nullish(),
+    sck: z.string().max(255).nullish(),
+    utm_source: z.string().max(255).nullish(),
+    utm_campaign: z.string().max(255).nullish(),
+    utm_medium: z.string().max(255).nullish(),
+    utm_content: z.string().max(255).nullish(),
+    utm_term: z.string().max(255).nullish(),
+  })
+  .nullish();
 
 const createPixSchema = z.object({
   amount: z.number().int().positive(), // centavos
@@ -34,6 +48,7 @@ const createPixSchema = z.object({
       }),
     })
     .optional(),
+  tracking: trackingSchema,
 });
 
 function authHeader() {
