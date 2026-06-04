@@ -398,13 +398,51 @@ function CheckoutPage() {
               </div>
             </section>
 
-            <button onClick={() => setStep(4)}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold rounded-full py-3.5 text-sm transition active:scale-[0.99] flex items-center justify-center gap-2 shadow-md">
-              <Lock className="w-4 h-4" /> FINALIZAR COMPRA SEGURA
-            </button>
-            <p className="text-center text-[11px] text-foreground/50 flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-green-600" /> Pagamento 100% seguro
-            </p>
+            {pix ? (
+              <section className="bg-white rounded-2xl shadow-sm border border-pink-100 p-5 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <QrCode className="w-5 h-5 text-[#FF00BB]" />
+                  <h3 className="font-extrabold text-foreground">Pague com Pix</h3>
+                </div>
+                <p className="text-[12px] text-foreground/60 mb-3">Escaneie o QR Code no app do seu banco</p>
+                {pix.url ? (
+                  <img src={pix.url} alt="QR Code Pix" className="w-56 h-56 mx-auto rounded-lg border border-pink-100" />
+                ) : (
+                  <img
+                    alt="QR Code Pix"
+                    className="w-56 h-56 mx-auto rounded-lg border border-pink-100"
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pix.qr)}`}
+                  />
+                )}
+                <div className="mt-4 text-left">
+                  <p className="text-[11px] font-bold text-foreground/70 mb-1">Pix copia e cola</p>
+                  <div className="flex gap-2">
+                    <input readOnly value={pix.qr} className="flex-1 h-10 px-2 rounded-lg border border-pink-200 text-[11px] bg-pink-50/40" />
+                    <button onClick={copyPix} className="px-3 h-10 rounded-lg bg-[#FF00BB] text-white text-xs font-bold flex items-center gap-1">
+                      <Copy className="w-3.5 h-3.5" /> {copied ? "Copiado" : "Copiar"}
+                    </button>
+                  </div>
+                </div>
+                <p className="mt-4 text-[12px] text-foreground/70 flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-[#FF00BB]" />
+                  Aguardando confirmação do pagamento...
+                </p>
+              </section>
+            ) : (
+              <>
+                {payError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">{payError}</div>
+                )}
+                <button onClick={handleFinalize} disabled={paying}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white font-bold rounded-full py-3.5 text-sm transition active:scale-[0.99] flex items-center justify-center gap-2 shadow-md">
+                  {paying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
+                  {paying ? "GERANDO PIX..." : "FINALIZAR COMPRA SEGURA"}
+                </button>
+                <p className="text-center text-[11px] text-foreground/50 flex items-center justify-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-green-600" /> Pagamento 100% seguro
+                </p>
+              </>
+            )}
           </>
         )}
 
@@ -414,14 +452,9 @@ function CheckoutPage() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
               <CheckCircle2 className="w-9 h-9 text-green-600" />
             </div>
-            <h2 className="font-extrabold text-xl text-foreground">Pedido confirmado!</h2>
+            <h2 className="font-extrabold text-xl text-foreground">Pagamento confirmado!</h2>
             <p className="text-sm text-foreground/70 mt-1">
               Enviamos os detalhes para <strong>{form.email}</strong>.
-            </p>
-            <p className="text-[13px] text-foreground/60 mt-3">
-              {payment === "pix"
-                ? "Realize o pagamento via Pix para que seu pedido seja processado."
-                : "Seu pagamento está sendo processado."}
             </p>
             <button onClick={() => navigate({ to: "/" })} className="mt-5 w-full bg-[#FF00BB] text-white font-bold rounded-full py-3 text-sm">
               Voltar para a loja
