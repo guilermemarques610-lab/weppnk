@@ -351,7 +351,7 @@ function CheckoutPage() {
               </div>
               <p className="text-[12px] text-foreground/60 mb-3">Escolha como deseja pagar seu pedido</p>
               <div className="space-y-2.5">
-                <button onClick={() => setPayment("pix")}
+                <button onClick={() => { setPayment("pix"); if (!pix && !paying) handleFinalize(); }}
                   className={`w-full text-left rounded-xl border-2 p-3 flex items-center gap-3 transition
                     ${payment === "pix" ? "border-[#FF00BB] bg-pink-50/40" : "border-pink-100 bg-white"}`}>
                   <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center shrink-0">
@@ -363,6 +363,11 @@ function CheckoutPage() {
                       <span className="bg-green-100 text-green-700 text-[9px] font-bold rounded-full px-1.5 py-0.5">APROVAÇÃO IMEDIATA</span>
                     </div>
                     <p className="text-[11px] text-foreground/60">Seu pedido é confirmado em segundos. Sem taxas adicionais.</p>
+                    {paying && payment === "pix" && (
+                      <p className="text-[11px] text-[#FF00BB] font-semibold flex items-center gap-1 mt-1">
+                        <Loader2 className="w-3 h-3 animate-spin" /> Gerando QR Code...
+                      </p>
+                    )}
                   </div>
                 </button>
 
